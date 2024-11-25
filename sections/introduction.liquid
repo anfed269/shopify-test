@@ -1,0 +1,277 @@
+{{ 'section-introduction.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="c-intro content-container color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="page-width">
+    <div class="c-intro__inner isolate {{ section.settings.content_alignment }}">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'images' -%}
+            {%- liquid
+              assign first_image = block.settings.first_image
+
+              assign second_image = block.settings.second_image
+
+              assign image_ratio = block.settings.image_ratio
+
+              assign widths = '165, 360, 535, 750, 1070, 1500'
+            -%}
+
+            {%- capture sizes -%}
+                (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: 2 }}px,
+                (min-width: 750px) calc((100vw - 130px) / 2), calc((100vw - 50px) / 2)
+            {%- endcapture -%}
+
+            {%- if first_image != blank or second_image != blank -%}
+              <div class="c-intro__images{% if second_image == blank %} c-intro__images--single{% endif %} grid grid--2-col">
+                {%- if first_image-%}
+                  <div class="c-intro__images__item grid__item">
+                    <div class="media media--{{ image_ratio }}">
+                      {{
+                        first_image
+                        | image_url: width: 1500
+                        | image_tag: sizes: sizes, widths: widths, fetchpriority: fetch_priority
+                      }}
+                    </div>
+                  </div>
+                {%- endif -%}
+                {%- if second_image-%}
+                  <div class="c-intro__images__item grid__item">
+                    <div class="media media--{{ image_ratio }}">
+                      {{
+                        second_image
+                        | image_url: width: 1500
+                        | image_tag: sizes: sizes, widths: widths, fetchpriority: fetch_priority
+                      }}
+                    </div>
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+          {%- when 'heading' -%}
+            <h2
+              class="c-intro__heading rte inline-richtext {{ block.settings.heading_size }}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.heading }}
+            </h2>
+
+          {%- when 'text' -%}
+            <div
+              class="c-intro__text rte"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.text }}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Introduction",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.rich-text.settings.desktop_content_position.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.rich-text.settings.desktop_content_position.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.rich-text.settings.desktop_content_position.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.rich-text.settings.desktop_content_position.label",
+      "info": "t:sections.rich-text.settings.desktop_content_position.info"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "label": "Content alignment"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.rich-text.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "Lorem ullamco",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "options": [
+            {
+              "value": "h2",
+              "label": "t:sections.all.heading_size.options__1.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.all.heading_size.options__2.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.all.heading_size.options__3.label"
+            },
+            {
+              "value": "hxl",
+              "label": "t:sections.all.heading_size.options__4.label"
+            },
+            {
+              "value": "hxxl",
+              "label": "t:sections.all.heading_size.options__5.label"
+            }
+          ],
+          "default": "h2",
+          "label": "t:sections.all.heading_size.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur eiusmod consectetur proident Lorem reprehenderit esse do anim velit in aliquip dolore ut officia. Consectetur reprehenderit proident do exercitation eu. Sunt fugiat pariatur elit est laboris quis. Esse mollit incididunt quis amet. Qui non irure incididunt laborum nisi cillum consequat aliquip aliquip cillum in. Ut excepteur labore voluptate tempor cupidatat dolor eiusmod do ipsum Lorem cupidatat do labore.</p>",
+          "label": "Description"
+        }
+      ]
+    },
+    {
+      "type": "images",
+      "name": "Images",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "first_image",
+          "label": "First image"
+        },
+        {
+          "type": "image_picker",
+          "id": "second_image",
+          "label": "Second image"
+        },
+        {
+          "type": "select",
+          "id": "image_ratio",
+          "options": [
+            {
+              "value": "landscape",
+              "label": "Landscape"
+            },
+            {
+              "value": "portrait",
+              "label": "Portrait"
+            },
+            {
+              "value": "square",
+              "label": "Square"
+            }
+          ],
+          "default": "portrait",
+          "label": "Image ratio"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Introduction",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "images"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

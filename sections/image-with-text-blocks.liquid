@@ -1,0 +1,288 @@
+{{ 'component-image-with-text.css' | asset_url | stylesheet_tag }}
+{{ 'section-image-with-text-blocks.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign fetch_priority = 'auto'
+  if section.index == 1
+    assign fetch_priority = 'high'
+  endif
+
+  if section.settings.image_layout contains 'left'
+    assign odd_class = ' image-with-text__grid--reverse'
+  else
+    assign even_class = ' image-with-text__grid--reverse'
+  endif
+
+  if section.settings.row_color_scheme == section.settings.section_color_scheme
+    assign remove_color_classes = true
+  endif
+
+  assign image_ratio = section.settings.image_ratio
+
+  assign content_alignment = section.settings.content_alignment
+
+  assign desktop_content_position = section.settings.desktop_content_position
+-%}
+
+<div class="section-{{ section.id }}-padding gradient color-{{ section.settings.section_color_scheme }}">
+  <div class="page-width">
+    <div class="image-with-text image-with-text--blocks isolate">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign image = block.settings.image
+
+          assign heading = block.settings.heading
+
+          assign heading_size = block.settings.heading_size
+
+          assign content = block.settings.content
+        -%}
+
+        <div class="image-with-text__grid grid grid--1-col grid--2-col-tablet{% cycle odd_class, even_class %}">
+          <div class="image-with-text__text-item grid__item">
+            <div
+              class="image-with-text__content image-with-text__content--{{ desktop_content_position }} image-with-text__content--desktop-{{ content_alignment }} image-with-text__content--mobile-{{ content_alignment }} image-with-text__content--{{ section.settings.height }} content-container{% unless remove_color_classes %} gradient color-{{ section.settings.row_color_scheme }}{% else %} background-transparent{% endunless %}"
+            >
+              {%- if heading != blank -%}
+                <h2 class="image-with-text__heading inline-richtext {{ heading_size }}">
+                  {{- heading -}}
+                </h2>
+              {%- endif -%}
+
+              {%- if content != blank -%}
+                <div class="image-with-text__text rte">
+                  {{- content -}}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+          <div class="image-with-text__media-item grid__item">
+            <div
+              class="image-with-text__media global-media-settings background-transparent{% if image != blank %} media media--{{ image_ratio }}{% else %} image-with-text__media--placeholder placeholder{% endif %}"
+            >
+              {%- if image != blank -%}
+                {%- assign widths = '165, 360, 535, 750, 1070, 1500' -%}
+                {%- capture sizes -%}
+                  (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: 2 }}px,
+                  (min-width: 750px) calc((100vw - 130px) / 2), calc((100vw - 50px) / 2)
+                {%- endcapture -%}
+
+                {{
+                  image
+                  | image_url: width: 1500
+                  | image_tag: sizes: sizes, widths: widths, fetchpriority: fetch_priority
+                }}
+              {%- else -%}
+                {{ 'detailed-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image with text - Blocks",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "landscape",
+          "label": "Landscape"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        }
+      ],
+      "default": "portrait",
+      "label": "Image ratio"
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "middle",
+          "label": "Middle"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "bottom",
+      "label": "Desktop content position"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left",
+      "label": "Content alignment"
+    },
+    {
+      "type": "select",
+      "id": "image_layout",
+      "options": [
+        {
+          "value": "align-left",
+          "label": "Aligned left"
+        },
+        {
+          "value": "align-right",
+          "label": "Aligned right"
+        }
+      ],
+      "default": "align-left",
+      "label": "Image placement"
+    },
+    {
+      "type": "color_scheme",
+      "id": "section_color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "row_color_scheme",
+      "label": "Container color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Image with text",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "Lorem ipsum",
+          "label": "Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "options": [
+            {
+              "value": "h2",
+              "label": "t:sections.all.heading_size.options__1.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.all.heading_size.options__2.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.all.heading_size.options__3.label"
+            },
+            {
+              "value": "hxl",
+              "label": "t:sections.all.heading_size.options__4.label"
+            },
+            {
+              "value": "hxxl",
+              "label": "t:sections.all.heading_size.options__5.label"
+            }
+          ],
+          "default": "h1",
+          "label": "t:sections.all.heading_size.label"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "default": "<p>Ex laborum ea qui consectetur mollit commodo eiusmod culpa dolor cupidatat. Ullamco dolore irure ea sit elit velit non officia. Ad eu reprehenderit in et voluptate mollit. Reprehenderit incididunt magna consequat enim sit eiusmod est dolor laborum cupidatat.</p>",
+          "label": "Content"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with text - Blocks",
+      "blocks": [
+        {
+          "type": "item"
+        },
+        {
+          "type": "item"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

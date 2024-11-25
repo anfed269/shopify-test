@@ -1,0 +1,37 @@
+:root {
+  --container-space: 0.8rem;
+  --custom-border-radius: 1.2rem;
+  --custom-border-radius-large: 1.6rem;
+  --h1-size: clamp(3.2rem, 4vw + 0.64rem, 6.4rem);
+  --h2-size: clamp(3.2rem, 1vw + 2.56rem, 4rem);
+}
+
+@media screen and (min-width: 750px) {
+  :root {
+    --container-space: 1.6rem;
+    --custom-border-radius: 1.6rem;
+    --custom-border-radius-large: 2.4rem;
+  }
+}
+@media screen and (min-width: 990px) {
+  :root {
+    --container-space: 3.2rem;
+  }
+}
+html * {
+  letter-spacing: 0 !important;
+}
+
+.page-width {
+  padding-inline: var(--container-space);
+}
+
+/* Typo */
+.h1 {
+  font-size: var(--h1-size);
+}
+
+.h2 {
+  font-size: var(--h2-size);
+  line-height: 1.35;
+}
