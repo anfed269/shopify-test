@@ -1,0 +1,26 @@
+{
+  "name": "shopify-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "sass-dev": "sass --watch --update --no-source-map --style=expanded assets/scss:assets/",
+    "sass-prod": "sass --no-source-map --style=compressed assets/scss:assets/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anfed269/shopify-test.git"
+  },
+  "keywords": [
+    "Shopfify"
+  ],
+  "author": "An Vo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anfed269/shopify-test/issues"
+  },
+  "homepage": "https://github.com/anfed269/shopify-test#readme",
+  "description": "",
+  "devDependencies": {
+    "sass": "^1.81.0"
+  }
+}
